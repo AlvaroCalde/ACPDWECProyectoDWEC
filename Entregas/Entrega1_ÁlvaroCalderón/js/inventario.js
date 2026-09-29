@@ -152,7 +152,7 @@ const addItem = () => {
 // Validación para saber si la casilla de origen/destino existe
 const isValidPos = (r, c) => !isNaN(r) && !isNaN(c) && r >= 0 && r < rows && c >= 0 && c < columns;
 
-// 6.5 Mover un objeto
+// Mover un objeto
 const moveItem = () => {
     const rOrig = parseInt(prompt("Fila origen (0-3):"));
     const cOrig = parseInt(prompt("Columna origen (0-8):"));
@@ -199,7 +199,7 @@ const moveItem = () => {
     }
 };
 
-// 6.6 Eliminar un objeto
+// Eliminar un objeto
 const deleteItem = () => {
     const r = parseInt(prompt("Fila a vaciar (0-3):"));
     const c = parseInt(prompt("Columna a vaciar (0-8):"));
