@@ -217,7 +217,56 @@ const deleteItem = () => {
     }
 };
 
+// Mostrar huecos libres
+const countFreeSpaces = () => {
+    let totalFree = 0;
+    let quickBarFree = 0;
 
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+            if (inventory[i][j] === null) {
+                totalFree++;
+                if (i === 0) quickBarFree++;
+            }
+        }
+    }
+    console.log(`Huecos libres en todo el inventario: ${totalFree}`);
+    console.log(`Huecos libres en la barra de acceso rápido: ${quickBarFree}`);
+};
+
+// Mostrar el objeto más abundante
+const getMostQuantityStack = () => {
+    const quantities = {};
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+            const item = inventory[i][j];
+            if (item !== null) {
+                if (quantities[item.name]) {
+                    quantities[item.name] += item.quantity;
+                } else {
+                    quantities[item.name] = item.quantity;
+                }
+            }
+        }
+    }
+
+    let maxName = null;
+    let maxQty = 0;
+
+    for (const [name, qty] of Object.entries(quantities)) {
+        if (qty > maxQty) {
+            maxQty = qty;
+            maxName = name;
+        }
+    }
+
+    if (maxName) {
+        console.log(`El objeto más abundante es: ${maxName} con un total de ${maxQty} unidades.`);
+    } else {
+        console.log("El inventario está completamente vacío.");
+    }
+};
 
 // Menú principal
 const mainMenu = () => {
