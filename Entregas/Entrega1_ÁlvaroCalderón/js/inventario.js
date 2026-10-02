@@ -76,44 +76,82 @@ const showQuickAccessBar = () => {
     console.log(quickBar);
 };
 
-// Buscar un objeto
-const searchItem = () => {
-    const itemName = prompt("Introduce el nombre del objeto a buscar:")?.trim().toLowerCase();
-    if (!itemName) return;
+// Función auxiliar para buscar posiciones de un objeto (ignora mayúsculas/minúsculas)
+const findItemPositions = (itemName) => {
+    const positions = [];
+    const lowerName = itemName.toLowerCase();
     
-    let found = false;
-    console.log(`--- RESULTADOS DE BÚSQUEDA: ${itemName.toUpperCase()} ---`);
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < columns; j++) {
             const item = inventory[i][j];
-            if (item !== null && item.name.toLowerCase() === itemName) {
-                console.log(`Fila: ${i}, Columna: ${j} -> ${item.showInfo()}`);
-                found = true;
+            if (item !== null && item.name.toLowerCase() === lowerName) {
+                // creo un objeto literal, row recoge el valor de i, col el de j e item el de item. Se usarán más tarde
+                positions.push({ row: i, col: j, item: item });
             }
         }
     }
-    if (!found) {
+    return positions; // Devuelve un array de objetos con la fila, columna y el Item
+};
+
+// Buscar un objeto
+const searchItem = () => {
+    const itemName = prompt("Introduce el nombre del objeto a buscar:")?.trim();
+    if (!itemName) return;
+    
+    const results = findItemPositions(itemName);
+    console.log(`--- RESULTADOS DE BÚSQUEDA: ${itemName.toUpperCase()} ---`);
+    
+    if (results.length > 0) {
+        results.forEach(res => {
+            //uso el objeto literal que creé antes
+            console.log(`Fila: ${res.row}, Columna: ${res.col} -> ${res.item.showInfo()}`);
+        });
+    } else {
         console.log("El objeto no se encuentra en el inventario.");
     }
 };
 
 // Añadir un objeto
 const addItem = () => {
-    const name = prompt("Nombre del objeto:");
-    const description = prompt("Descripción del objeto:");
-    let quantity = parseInt(prompt("Cantidad a añadir:"));
-    const maxStack = parseInt(prompt("Stack máximo del objeto:"));
+    const nameInput = prompt("Nombre del objeto:")?.trim();
+    if (!nameInput) return;
 
-    if (!name || isNaN(quantity) || quantity <= 0 || isNaN(maxStack) || maxStack <= 0) {
-        alert("Datos inválidos. Operación cancelada.");
+    let finalName = nameInput;
+    let description, maxStack;
+    
+    // Compruebo si ya existe
+    const existingItems = findItemPositions(nameInput);
+
+    if (existingItems.length > 0) {
+        // Si existe, cogemos los datos del primer stack que encontremos
+        const baseItem = existingItems[0].item;
+        finalName = baseItem.name; // Respetamos las mayúsculas/minúsculas originales
+        description = baseItem.description;
+        maxStack = baseItem.maxStack;
+        
+        console.log(`El objeto ya existe como '${finalName}'. Se aplicará su stack máximo automático de ${maxStack}.`);
+    } else {
+        // Si no existe, pedimos el resto de datos
+        description = prompt("Descripción del objeto:");
+        maxStack = parseInt(prompt("Stack máximo del objeto (ej. 64):"));
+        
+        if (isNaN(maxStack) || maxStack <= 0) {
+            alert("Stack máximo inválido. Operación cancelada.");
+            return;
+        }
+    }
+
+    let quantity = parseInt(prompt(`Cantidad de '${finalName}' a añadir:`));
+    if (isNaN(quantity) || quantity <= 0) {
+        alert("Cantidad inválida. Operación cancelada.");
         return;
     }
 
     // 1. Intentar llenar stacks existentes que no estén completos
-    for (let i = 0; i < rows && quantity > 0; i++) {
-        for (let j = 0; j < columns && quantity > 0; j++) {
+    for (let i = 0; i < ROWS && quantity > 0; i++) {
+        for (let j = 0; j < COLS && quantity > 0; j++) {
             const item = inventory[i][j];
-            if (item !== null && item.name.toLowerCase() === name.toLowerCase() && item.quantity < item.maxStack) {
+            if (item !== null && item.name === finalName && item.quantity < item.maxStack) {
                 const spaceLeft = item.maxStack - item.quantity;
                 if (quantity <= spaceLeft) {
                     item.quantity += quantity;
@@ -128,14 +166,14 @@ const addItem = () => {
         }
     }
 
-    // 2. Si todavía queda cantidad, crear nuevos objetos en huecos libres (respetando maxStack)
+    // 2. Si todavía queda cantidad, crear nuevos objetos en huecos libres
     while (quantity > 0) {
         let placed = false;
-        for (let i = 0; i < rows && !placed; i++) {
-            for (let j = 0; j < columns && !placed; j++) {
+        for (let i = 0; i < ROWS && !placed; i++) {
+            for (let j = 0; j < COLS && !placed; j++) {
                 if (inventory[i][j] === null) {
                     const qtyToPlace = Math.min(quantity, maxStack);
-                    inventory[i][j] = new Item(name, description, qtyToPlace, maxStack);
+                    inventory[i][j] = new Item(finalName, description, qtyToPlace, maxStack);
                     quantity -= qtyToPlace;
                     placed = true;
                     console.log(`Creado nuevo stack en ${i},${j} con cantidad ${qtyToPlace}.`);
@@ -143,7 +181,7 @@ const addItem = () => {
             }
         }
         if (!placed) {
-            alert(`¡El inventario está lleno! Se perdieron ${quantity} unidades.`);
+            alert(`¡El inventario está lleno! Se perdieron ${quantity} unidades de ${finalName}.`);
             break;
         }
     }
