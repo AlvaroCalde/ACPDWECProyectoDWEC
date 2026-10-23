@@ -33,7 +33,7 @@ console.log(location.pathname);
 //location.href = "https://github.com";
 */
 
-//1 y 2
+//1
 function prep() {
     console.log("Partida lista");
     
