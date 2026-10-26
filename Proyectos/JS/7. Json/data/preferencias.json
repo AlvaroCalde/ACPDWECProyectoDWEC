@@ -1,0 +1,10 @@
+{ 
+    "usuario": "Alex", 
+    "sonido": true,
+    "volumen": 70,
+    "idiomas": ["es", "en"],
+    "favoritos":[ 
+        "Bosque", 
+        "Desierto" 
+    ]
+}     
