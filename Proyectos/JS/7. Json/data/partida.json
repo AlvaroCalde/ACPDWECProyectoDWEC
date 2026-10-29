@@ -1,0 +1,20 @@
+{
+  "nombre": "Mundo 1",
+  "config": {
+    "dificultad": "normal", "sonido": true
+  },
+  "jugadores": [
+    {
+      "id": 1, "nombre": "Alex",
+      "stats": {"vida": 80, "nivel": 4},
+      "inventario": [
+        {"nombre": "poción", "cantidad": 2}
+      ]
+    },
+    {
+      "id": 2, "nombre": "Steve",
+      "stats": {"vida": 60, "nivel": 3},
+      "inventario": []
+    }
+  ]
+}

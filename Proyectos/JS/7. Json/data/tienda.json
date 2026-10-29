@@ -1,0 +1,17 @@
+{
+  "tienda": "Aldea",
+  "productos": [
+    { 
+        "id": 1, "nombre": "Poción", 
+        "precio": 10, "stock": 5 
+    },
+    { 
+        "id": 2, "nombre": "Escudo", 
+        "precio": 40, "stock": 2 
+    },
+    { 
+        "id": 3, "nombre": "Arco", 
+        "precio": 30, "stock": 0 
+    }
+  ]
+}
