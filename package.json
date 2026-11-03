@@ -1,0 +1,19 @@
+{
+  "name": "dwec",
+  "main": "index.js",
+  "version": "1.0.0", 
+  "private": true, 
+  "type": "module", 
+  "scripts": { "start": "node index.js" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlvaroCalde/ACPDWECProyectoDWEC.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlvaroCalde/ACPDWECProyectoDWEC/issues"
+  },
+  "homepage": "https://github.com/AlvaroCalde/ACPDWECProyectoDWEC#readme"
+}
