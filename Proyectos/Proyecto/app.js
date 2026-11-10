@@ -1,74 +1,77 @@
 import http from "node:http";
 import { readFile, writeFile, rename } from "node:fs/promises";
 
-const archivoInventario = new URL("./inventario.json", import.meta.url);
-const archivoTemporal = new URL("./inventario.tmp", import.meta.url);
-const inventario = JSON.parse(await readFile(archivoInventario, "utf8"));
-if (!Number.isSafeInteger(inventario?.piedras) || inventario.piedras < 0) {
-  throw new Error("inventario.json debe contener una cantidad válida de piedras");
+const INVENTARY_FILE = new URL("./inventary.json", import.meta.url);
+const INVENTARY_TEMP_FILE = new URL("./inventary.tmp", import.meta.url);
+const INVENTARY = JSON.parse(await readFile(INVENTARY_FILE, "utf8"));
+if (INVENTARY.stones === undefined && INVENTARY.STONES !== undefined) {
+  INVENTARY.stones = INVENTARY.STONES;
+  delete INVENTARY.STONES;
+}
+if (!Number.isSafeInteger(INVENTARY?.stones) || INVENTARY.stones < 0) {
+  throw new Error("inventary.json debe contener una cantidad válida de piedras");
 }
 
-function responderJSON(res, datos) {
+function resJSON(res, data) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
-  res.end(JSON.stringify(datos));
+  res.end(JSON.stringify(data));
 }
 
-let guardados = Promise.resolve();
+let savedPromise = Promise.resolve();
 
-function añadirPiedra() {
-  const guardado = guardados.then(async () => {
-    const piedras = inventario.piedras + 1;
-    if (!Number.isSafeInteger(piedras)) throw new Error("Cantidad fuera de rango");
-    const datos = { piedras };
-    await writeFile(archivoTemporal, JSON.stringify(datos, null, 2), "utf8");
-    await rename(archivoTemporal, archivoInventario);
-    inventario.piedras = piedras;
-    return datos;
+function addStones() {
+  const SAVED = savedPromise.then(async () => {
+    const STONES = INVENTARY.stones + 1;
+    if (!Number.isSafeInteger(STONES)) throw new Error("Cantidad fuera de rango");
+    const DATA = { ...INVENTARY, stones: STONES };
+    await writeFile(INVENTARY_TEMP_FILE, JSON.stringify(DATA, null, 2), "utf8");
+    await rename(INVENTARY_TEMP_FILE, INVENTARY_FILE);
+    INVENTARY.stones = STONES;
+    return DATA;
   });
   // Si falla un guardado, el siguiente clic todavía puede volver a intentarlo.
-  guardados = guardado.catch(() => {});
-  return guardado;
+  savedPromise = SAVED.catch(() => {});
+  return SAVED;
 }
 
-const recursos = {
+const RESOURCES = {
   "/": ["index.html", "text/html"],
   "/style.css": ["style.css", "text/css"],
   "/main.js": ["main.js", "text/javascript"]
 };
 
-const servidor = http.createServer(async (req, res) => {
+const SERVER = http.createServer(async (req, res) => {
   console.log(req.method, req.url);
-  const ruta = req.url.split("?")[0];
-  if (ruta === "/inventario" && req.method === "GET") {
-    return responderJSON(res, inventario);
+  const RUTE = req.url.split("?")[0];
+  if (RUTE === "/inventary" && req.method === "GET") {
+    return resJSON(res, INVENTARY);
   }
-  if (ruta === "/inventario" && req.method === "POST") {
+  if (RUTE === "/inventary" && req.method === "POST") {
     try {
-      return responderJSON(res, await añadirPiedra());
+      return resJSON(res, await addStones());
     } catch {
       res.statusCode = 500;
-      return res.end("No se pudo guardar el inventario");
+      return res.end("No se pudo guardar el inventary");
     }
   }
-  if (req.method !== "GET" || !Object.hasOwn(recursos, ruta)) {
+  if (req.method !== "GET" || !Object.hasOwn(RESOURCES, RUTE)) {
     res.statusCode = 404;
     return res.end("Recurso no encontrado");
   }
-  const [archivo, tipo] = recursos[ruta];
+  const [archive, type] = RESOURCES[RUTE];
 
   try {
-    const url = new URL("./src/" + archivo, import.meta.url);
-    const contenido = await readFile(url);
-    res.setHeader("Content-Type", tipo + "; charset=utf-8");
-    res.end(contenido);
+    const MY_URL = new URL("./src/" + archive, import.meta.url);
+    const CONTENT = await readFile(MY_URL);
+    res.setHeader("Content-Type", type + "; charset=utf-8");
+    res.end(CONTENT);
   } catch {
     res.statusCode = 500;
     res.end("Error al leer el archivo");
   }
 });
 
-servidor.listen(3000, "127.0.0.1", () => {
+SERVER.listen(3000, "127.0.0.1", () => {
   console.log("Servidor en http://127.0.0.1:3000/");
 });
- 

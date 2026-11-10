@@ -1,10 +1,13 @@
 {
+  "type": "module",
+  "private": "true",
   "name": "proyecto",
-  "version": "1.0.0", 
-  "private": true, 
-  "type": "module", 
+  "version": "1.0.0",
+  "description": "Introducción a DOM y NODE con HTTP y JSON",
   "main": "app.js",
-  "scripts": { "start": "node app.js" },
+  "scripts": {
+    "start" : "node app.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
